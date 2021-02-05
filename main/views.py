@@ -17,14 +17,22 @@ def timetable(request):
 
 def addmoney(request):
 	
-	if request.method == 'GET':
-		q = int(request.GET.get('quantity'))
-		u = User.objects.get(username = request.user.username)
-		p = u.profile
-		bal = p.balance
-		p.balance = bal + int(q)
-		p.save()
-		return redirect('/')
+	if request.method == 'POST':
+		#q = int(request.GET.get('quantity'))
+		q = request.POST.get('quantity')
+		#u = User.objects.get(username = request.GET.get('roll'))
+		if User.objects.filter(username= request.POST.get('roll')).exists():
+			u = User.objects.get(username = request.POST.get('roll'))
+			p = u.profile
+			bal = p.balance
+			p.balance = bal + int(q)
+			p.save()
+			mess = 'Rs '+q+' was added to '+ request.POST.get('roll') + '. Present balance is '+str(p.balance)
+			messages.info(request, mess)
+			return redirect('/')
+		else:
+			messages.info(request,'invalid roll no')
+			return redirect('addmoney')
 	else:
 		return render(request,'add.html')
 def pay(request):
